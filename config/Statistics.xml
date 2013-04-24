@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<AVT Format='MVT Comparison Information'>
+<version>v0.2</version>
+<comment>For Internal Use Only!</comment>
+<Comparison_ID>user1</Comparison_ID>
+<Comparison_Date>20090303</Comparison_Date>
+<Comparison_Time>100723</Comparison_Time>
+<Comparison_UID>test1</Comparison_UID>
+<Experiment_UID>Experiment1</Experiment_UID>
+<Items>
+<Item>
+<Data>RECIST Difference</Data>
+<Method>Mean</Method>
+</Item>
+<Item>
+<Data>WHO Difference</Data>
+<Method>Mean</Method>
+</Item>
+<Item>
+<Data>Volume Difference</Data>
+<Method>Mean</Method>
+</Item>
+<Item>
+<Data>Relative VolumeDifference</Data>
+<Method>Mean</Method>
+</Item>
+<Item>
+<Data>Surface Distance(Average)</Data>
+<Method>Mean</Method>
+</Item>
+<Item>
+<Data>Surface Distance(RMS)</Data>
+<Method>Mean</Method>
+</Item>
+<Item>
+<Data>Surface Distance(Maximum)</Data>
+<Method>Mean</Method>
+</Item>
+<Item>
+<Data>Volume Overlap</Data>
+<Method>Mean</Method>
+</Item>
+</Items>
+</AVT>

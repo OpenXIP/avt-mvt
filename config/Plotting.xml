@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<AVT Format='MVT Plotting Information'>
+<version>v0.2</version>
+<comment>For Internal Use Only!</comment>
+<Plotting>
+<Plotting_ID>user1</Plotting_ID>
+<Plotting_Date>20090525</Plotting_Date>
+<Plotting_Time>112326</Plotting_Time>
+<Plotting_UID>Outlier1</Plotting_UID>
+<Experiment_UID>Experiment1</Experiment_UID>
+</Plotting>
+<Items>
+<Item>
+<Title>Bland-Altmann of Volume</Title>
+<Data1>NominalGT Volume</Data1>
+<Data2>Annotation Volume</Data2>
+<Legend>on</Legend>
+<Chart>Bland_Altmann</Chart>
+</Item>
+<Item>
+<Title>Scatter of Volume</Title>
+<Data1>NominalGT Volume</Data1>
+<Data2>Annotation Volume</Data2>
+<Legend>off</Legend>
+<Chart>Scatter</Chart>
+</Item>
+</Items>
+</AVT>

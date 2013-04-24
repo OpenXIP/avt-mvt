@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jdom.jar"/>
+	<classpathentry kind="lib" path="lib/pixelmed.jar"/>
+	<classpathentry kind="lib" path="lib/XIPApp.jar"/>
+	<classpathentry kind="lib" path="lib/dcm4che-core-2.0.18.jar"/>
+	<classpathentry kind="lib" path="lib/dcm4che-iod-2.0.18.jar"/>
+	<classpathentry kind="lib" path="lib/ad-api-0.9.jar"/>
+	<classpathentry kind="output" path="build"/>
+</classpath>

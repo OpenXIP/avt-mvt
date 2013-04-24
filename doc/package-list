@@ -1,0 +1,11 @@
+com.siemens.cmiv.avt.mvt.ad
+com.siemens.cmiv.avt.mvt.core
+com.siemens.cmiv.avt.mvt.datatype
+com.siemens.cmiv.avt.mvt.io
+com.siemens.cmiv.avt.mvt.outlier
+com.siemens.cmiv.avt.mvt.plot
+com.siemens.cmiv.avt.mvt.statistic
+com.siemens.cmiv.avt.mvt.ui
+com.siemens.cmiv.avt.mvt.utils
+com.siemens.cmiv.avt.qiba
+com.siemens.cmiv.avt.qiba.dicom

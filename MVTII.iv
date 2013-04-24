@@ -1,0 +1,2244 @@
+#Inventor V2.1 ascii
+
+Separator {
+    DEF Main_Switch Switch {
+	DEF Viewport_Layout SoXipViewportGroup {
+	    fields [ SFBool activateOnClick, MFVec4f viewports,  ]
+	    activateOnClick	FALSE
+	    viewports	[ 0 0 0.333 1,
+			      0.333 0 0.333 1,
+			      0.666 0 0.333 1 ]
+	    Separator {
+		Separator {
+		    Group {
+			DEF +0 SoXipMprPlane {
+			    fields [ SFMatrix plane, SFVec3f center, SFColor color, SFInt32 id,
+				     ]
+			    plane	1 -6.50187e-008 2.92721e-008 0
+				    -2.9272e-008 1.04575e-006 1 0
+				    -6.50187e-008 -1 1.04575e-006 0
+				    0.5 0.5 0.5 1
+			    center	0.5 0.50856 0.5
+			    color	0 0 1
+			    id	2
+			}
+			DEF +1 SoXipMprPlane {
+			    fields [ SFMatrix plane, SFVec3f center, SFColor color, SFInt32 id,
+				     ]
+			    plane	1.78814e-007 1 8.9407e-008 0
+				    2.98023e-008 -5.96047e-008 1 0
+				    1 -1.49012e-007 -1.42109e-014 0
+				    0.5 0.5 0.5 1
+			    center	0.5 0.5 0.5
+			    color	0 1 0
+			    id	1
+			}
+			DEF Axial_Plane+2 SoXipMprPlane {
+			    fields [ SFMatrix plane, SFVec3f center, SFColor color,  ]
+			    plane	1 -3.70421e-008 -7.39953e-010 0
+				    -3.70421e-008 -1 -8.596e-008 0
+				    -7.3995e-010 8.596e-008 -1 0
+				    0.5 0.5 0.5 1 =
+				DEF Import_Points SoNormalizeImagePt {
+				    inputs [ SoXipMFDataDicom refInput,  ]
+				    refInput	[  ] =
+					DEF +3 SoXipSortDicom {
+					    inputs [ SoXipMFDataDicom input ]
+					    input	[  ] =
+						DEF LoadDicom SoXipLoadDicom {
+						    inputs [  ]
+						    outputs [ SoXipMFDataDicom dicom ]
+						}
+						. dicom
+
+					    outputs [ SoXipMFDataDicom output ]
+					}
+					. output
+
+				    outputs [ MFVec3f coordinates, SFMatrix plane, SFBool status ]
+				}
+				. plane
+
+			    center	0.5 0.50856 0.5
+			    color	1 0 0
+			}
+		    }
+		    DEF Examiner_Axial SoXipMprExaminer {
+			mode	PANZOOM
+			intersection	INTERSECTION
+			border	TRUE
+			dogEar	TRUE
+			orientationCube	TRUE
+			camera				OrthographicCamera {
+			    position	0.5 0.5 0.5
+			    orientation	1 -1.8521e-008 -3.69976e-010  3.14159
+			    nearDistance	-0.5
+			    farDistance	0.5
+			    focalDistance	0
+			    height	1
+			}
+
+			complexity				Complexity {
+			    value	0.5
+			    textureQuality	0.5
+			}
+
+			intersectionManip				SoXipMprIntersectionManip {
+			    fields [ SFBool on, SFEnum mode,  ]
+			    on	TRUE
+			    mode	INTERSECTION
+			}
+
+			borderNode				SoXipViewportBorder {
+			    fields [ SFColor activeColor, SFColor inactiveColor,  ]
+			    activeColor	1 0 0
+			    inactiveColor	1 0 0
+			}
+
+			dogEarNode				SoXipDogEar {
+			    fields [  ]
+			}
+
+			orientationNode				SoXipOrientationCube {
+			    fields [  ]
+			}
+
+		    }
+		    DEF +4 Group {
+			DEF Dicom_WL+5 SoXipWindowLevelManip {
+			    fields [ SFFloat window, SFFloat level, SFEnum mouse, SFBool handleComplexity ]
+			    window	1 =
+				DEF Window_Gate Gate {
+				    type	"MFFloat"
+				    input	1 =
+					DEF Dicom_Window SelectOne {
+					    type	"MFFloat"
+					    index	0
+					    input	[ 1, 1500 ] =
+						DEF Window Concatenate {
+						    type	"MFFloat"
+						    input0	1 =
+							DEF +6 SoXipDicomWindowLevel {
+							    inputs [ SoXipSFDataDicom input ]
+							    input	"NULL" =
+								USE +3
+								. output
+
+							    outputs [ SFFloat window, SFFloat level, SFShort bitsStored ]
+							}
+							. window
+
+						    input1	1500 =
+							DEF Win_Level+7 Calculator {
+							    a	0 =
+								USE +6
+								. bitsStored
+
+							    b	0 =
+								SoIAParseString {
+								    inputs [ SFString string,  ]
+								    string	"" =
+									DEF Intercept SoXipGetDicomString {
+									    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+									    dicom	"NULL" =
+										DEF +8 SoXipDecomposeMFDicom {
+										    inputs [ SoXipMFDataDicom input, SFShort index ]
+										    input	[  ] =
+											USE +3
+											. output
+
+										    index	0
+										    outputs [ SoXipSFDataDicom output ]
+										}
+										. output
+
+									    group	0x28
+									    element	0x1052
+									    outputs [ MFString string ]
+									}
+									. string
+
+								    outputs [ SFFloat output ]
+								}
+								. output
+
+							    c	1
+							    d	1500
+							    e	-600
+							    f	1 =
+								DEF +9 SoXipLut {
+								    fields [ SFEnum inputMode, SFEnum alphaMode, SFShort bitsUsed, SFFloat rampWidth,
+									    SFFloat rampCenter, SFFloat slopeCenter, SFInt32 fileEntries, MFColor arrayColor,
+									    MFFloat arrayAlpha ]
+								    inputMode	TRAPEZOID
+								    alphaMode	CONSTANT
+								    bitsUsed	0 =
+									USE +6
+									. bitsStored
+
+								    rampWidth	1 =
+									USE Dicom_WL+5
+									. window
+
+								    rampCenter	0.5 =
+									USE Dicom_WL+5
+									. level
+
+								    slopeCenter	0.9
+								    fileEntries	4096
+								    arrayColor	[  ]
+								    arrayAlpha	[  ]
+								}
+								. rampWidth
+
+							    g	0.5 =
+								USE +9
+								. rampCenter
+
+							    expression	"oa=d/(pow(2.0, a));ob=((e-b)/c)/(pow(2.0, a)); oc=f*(pow(2.0, a));od=b+g*c*(pow(2.0, a))"
+							}
+							. oa
+
+						}
+						. output
+
+					}
+					. output
+
+				}
+				. output
+
+			    level	0.5 =
+				DEF Level_Gate Gate {
+				    type	"MFFloat"
+				    input	0.5 =
+					DEF Dicom_Level SelectOne {
+					    type	"MFFloat"
+					    index	0
+					    input	[ 0.5, -600 ] =
+						DEF Level Concatenate {
+						    type	"MFFloat"
+						    input0	0.5 =
+							USE +6
+							. level
+
+						    input1	-600 =
+							USE Win_Level+7
+							. ob
+
+						}
+						. output
+
+					}
+					. output
+
+				}
+				. output
+
+			    mouse	BUTTON3
+			    handleComplexity	TRUE
+			}
+			USE +9
+		    }
+		    SoXipCPUMprRender {
+			fields [ SoXipSFDataImage volume, SFBool blendOn ]
+			volume	"NULL" =
+			    DEF +10 SoXipVolumeDicom {
+				inputs [ SoXipMFDataDicom input ]
+				input	[  ] =
+				    USE +3
+				    . output
+
+				outputs [ SoXipSFDataImage output ]
+			    }
+			    . output
+
+			blendOn	TRUE
+		    }
+		    Group {
+			DEF OverlayStyle_Axial_0 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Axial_0 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	0.3 0.8 1
+			    transparency	0.1
+			}
+			DEF Mask_Axial_0+11 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFMatrix plane, MFVec3f concavePoints,
+				     ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				DEF Mask_Switch_Import_0+12 SoXipSwitchMFDataImage {
+				    inputs [ SoXipMFDataImage image1, SoXipMFDataImage image2,  ]
+				    image1	"NULL" =
+					DEF QIBA_Mask_Import_0 SoContourVoxelizer {
+					    inputs [ MFVec3f point, MFInt32 coordIndex, SFEnum maskType, SFShort width,
+						    SFShort height, SFShort depth, SFMatrix modelMatrix,  ]
+					    point	[  ] =
+						DEF QIBA_Contour_Import_0+13 SoNormalizeContour {
+						    inputs [  ]
+						    outputs [ SFMatrix modelMatrix, SFInt32 maskWidth, SFInt32 maskHeight, SFInt32 maskDepth,
+							    MFVec3f pointList, MFInt32 pointIndex ]
+						}
+						. pointList
+
+					    coordIndex	[  ] =
+						USE QIBA_Contour_Import_0+13
+						. pointIndex
+
+					    maskType	BYTE_MASK
+					    width	0 =
+						USE QIBA_Contour_Import_0+13
+						. maskWidth
+
+					    height	0 =
+						USE QIBA_Contour_Import_0+13
+						. maskHeight
+
+					    depth	0 =
+						USE QIBA_Contour_Import_0+13
+						. maskDepth
+
+					    modelMatrix	1 0 0 0
+						    0 1 0 0
+						    0 0 1 0
+						    0 0 0 1 =
+						USE QIBA_Contour_Import_0+13
+						. modelMatrix
+
+					    outputs [ SoXipSFDataImage mask ]
+					}
+					. mask
+
+				    image2	"NULL" =
+					DEF DICOM_Seg_Import_0 SoIALoadDcmSegObject {
+					    inputs [  ]
+					    outputs [ SoXipSFDataImage inputVolume ]
+					}
+					. inputVolume
+
+				    outputs [ SoXipMFDataImage image ]
+				}
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				DEF +14 SoXipImageAttributes {
+				    inputs [ SoXipSFDataImage image ]
+				    image	"NULL" =
+					USE +10
+					. output
+
+				    outputs [ SFMatrix modelMatrix, SFShort width, SFShort height, SFShort depth,
+					    SFShort bitsStored, SFMatrix defaultOrientation, SFShort orthoScanOrientation, SFMatrix orthoOrientation1,
+					    SFMatrix orthoOrientation2, SFMatrix orthoOrientation3, SFVec3f defaultCenter ]
+				}
+				. modelMatrix
+
+			    refWidth	0 =
+				USE +14
+				. width
+
+			    refHeight	0 =
+				USE +14
+				. height
+
+			    refDepth	0 =
+				USE +14
+				. depth
+
+			    plane	1 -3.70421e-008 -7.39953e-010 0
+				    -3.70421e-008 -1 -8.596e-008 0
+				    -7.3995e-010 8.596e-008 -1 0
+				    0.5 0.5 0.5 1 =
+				USE Axial_Plane+2
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Axial_1 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Axial_1 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	0.8 0.3 1
+			    transparency	0.1
+			}
+			DEF Mask_Axial_1+15 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFMatrix plane, MFVec3f concavePoints,
+				     ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				DEF Mask_Switch_Import_1+16 SoXipSwitchMFDataImage {
+				    inputs [ SoXipMFDataImage image1, SoXipMFDataImage image2,  ]
+				    image1	"NULL" =
+					DEF QIBA_Mask_Import_1 SoContourVoxelizer {
+					    inputs [ MFVec3f point, MFInt32 coordIndex, SFEnum maskType, SFShort width,
+						    SFShort height, SFShort depth, SFMatrix modelMatrix,  ]
+					    point	[  ] =
+						DEF QIBA_Contour_Import_1+17 SoNormalizeContour {
+						    inputs [  ]
+						    outputs [ SFMatrix modelMatrix, SFInt32 maskWidth, SFInt32 maskHeight, SFInt32 maskDepth,
+							    MFVec3f pointList, MFInt32 pointIndex ]
+						}
+						. pointList
+
+					    coordIndex	[  ] =
+						USE QIBA_Contour_Import_1+17
+						. pointIndex
+
+					    maskType	BYTE_MASK
+					    width	0 =
+						USE QIBA_Contour_Import_1+17
+						. maskWidth
+
+					    height	0 =
+						USE QIBA_Contour_Import_1+17
+						. maskHeight
+
+					    depth	0 =
+						USE QIBA_Contour_Import_1+17
+						. maskDepth
+
+					    modelMatrix	1 0 0 0
+						    0 1 0 0
+						    0 0 1 0
+						    0 0 0 1 =
+						USE QIBA_Contour_Import_1+17
+						. modelMatrix
+
+					    outputs [ SoXipSFDataImage mask ]
+					}
+					. mask
+
+				    image2	"NULL" =
+					DEF DICOM_Seg_Import_1 SoIALoadDcmSegObject {
+					    inputs [  ]
+					    outputs [ SoXipSFDataImage inputVolume ]
+					}
+					. inputVolume
+
+				    outputs [ SoXipMFDataImage image ]
+				}
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE Mask_Axial_0+11
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE Mask_Axial_0+11
+				. refWidth
+
+			    refHeight	0 =
+				USE Mask_Axial_0+11
+				. refHeight
+
+			    refDepth	0 =
+				USE Mask_Axial_0+11
+				. refDepth
+
+			    plane	1 -3.70421e-008 -7.39953e-010 0
+				    -3.70421e-008 -1 -8.596e-008 0
+				    -7.3995e-010 8.596e-008 -1 0
+				    0.5 0.5 0.5 1 =
+				USE Mask_Axial_0+11
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Axial_2 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Axial_2 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	1 0.3 0.8
+			    transparency	0.1
+			}
+			DEF Mask_Axial_2+18 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFMatrix plane, MFVec3f concavePoints,
+				     ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				DEF Mask_Switch_Import_2+19 SoXipSwitchMFDataImage {
+				    inputs [ SoXipMFDataImage image1, SoXipMFDataImage image2,  ]
+				    image1	"NULL" =
+					DEF QIBA_Mask_Import_2 SoContourVoxelizer {
+					    inputs [ MFVec3f point, MFInt32 coordIndex, SFEnum maskType, SFShort width,
+						    SFShort height, SFShort depth, SFMatrix modelMatrix,  ]
+					    point	[  ] =
+						DEF QIBA_Contour_Import_2+20 SoNormalizeContour {
+						    inputs [  ]
+						    outputs [ SFMatrix modelMatrix, SFInt32 maskWidth, SFInt32 maskHeight, SFInt32 maskDepth,
+							    MFVec3f pointList, MFInt32 pointIndex ]
+						}
+						. pointList
+
+					    coordIndex	[  ] =
+						USE QIBA_Contour_Import_2+20
+						. pointIndex
+
+					    maskType	BYTE_MASK
+					    width	0 =
+						USE QIBA_Contour_Import_2+20
+						. maskWidth
+
+					    height	0 =
+						USE QIBA_Contour_Import_2+20
+						. maskHeight
+
+					    depth	0 =
+						USE QIBA_Contour_Import_2+20
+						. maskDepth
+
+					    modelMatrix	1 0 0 0
+						    0 1 0 0
+						    0 0 1 0
+						    0 0 0 1 =
+						USE QIBA_Contour_Import_2+20
+						. modelMatrix
+
+					    outputs [ SoXipSFDataImage mask ]
+					}
+					. mask
+
+				    image2	"NULL" =
+					DEF DICOM_Seg_Import_2 SoIALoadDcmSegObject {
+					    inputs [  ]
+					    outputs [ SoXipSFDataImage inputVolume ]
+					}
+					. inputVolume
+
+				    outputs [ SoXipMFDataImage image ]
+				}
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE Mask_Axial_1+15
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE Mask_Axial_1+15
+				. refWidth
+
+			    refHeight	0 =
+				USE Mask_Axial_1+15
+				. refHeight
+
+			    refDepth	0 =
+				USE Mask_Axial_1+15
+				. refDepth
+
+			    plane	1 -3.70421e-008 -7.39953e-010 0
+				    -3.70421e-008 -1 -8.596e-008 0
+				    -7.3995e-010 8.596e-008 -1 0
+				    0.5 0.5 0.5 1 =
+				USE Mask_Axial_1+15
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Axial_3 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Axial_3 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	1 0.8 0.3
+			    transparency	0.1
+			}
+			DEF Mask_Axial_3 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFMatrix plane, MFVec3f concavePoints,
+				     ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				DEF Mask_Switch_Import_3+21 SoXipSwitchMFDataImage {
+				    inputs [ SoXipMFDataImage image1, SoXipMFDataImage image2,  ]
+				    image1	"NULL" =
+					DEF QIBA_Mask_Import_3 SoContourVoxelizer {
+					    inputs [ MFVec3f point, MFInt32 coordIndex, SFEnum maskType, SFShort width,
+						    SFShort height, SFShort depth, SFMatrix modelMatrix,  ]
+					    point	[  ] =
+						DEF QIBA_Contour_Import_3+22 SoNormalizeContour {
+						    inputs [  ]
+						    outputs [ SFMatrix modelMatrix, SFInt32 maskWidth, SFInt32 maskHeight, SFInt32 maskDepth,
+							    MFVec3f pointList, MFInt32 pointIndex ]
+						}
+						. pointList
+
+					    coordIndex	[  ] =
+						USE QIBA_Contour_Import_3+22
+						. pointIndex
+
+					    maskType	BYTE_MASK
+					    width	0 =
+						USE QIBA_Contour_Import_3+22
+						. maskWidth
+
+					    height	0 =
+						USE QIBA_Contour_Import_3+22
+						. maskHeight
+
+					    depth	0 =
+						USE QIBA_Contour_Import_3+22
+						. maskDepth
+
+					    modelMatrix	1 0 0 0
+						    0 1 0 0
+						    0 0 1 0
+						    0 0 0 1 =
+						USE QIBA_Contour_Import_3+22
+						. modelMatrix
+
+					    outputs [ SoXipSFDataImage mask ]
+					}
+					. mask
+
+				    image2	"NULL" =
+					DEF DICOM_Seg_Import_3 SoIALoadDcmSegObject {
+					    inputs [  ]
+					    outputs [ SoXipSFDataImage inputVolume ]
+					}
+					. inputVolume
+
+				    outputs [ SoXipMFDataImage image ]
+				}
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE Mask_Axial_2+18
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE Mask_Axial_2+18
+				. refWidth
+
+			    refHeight	0 =
+				USE Mask_Axial_2+18
+				. refHeight
+
+			    refDepth	0 =
+				USE Mask_Axial_2+18
+				. refDepth
+
+			    plane	1 -3.70421e-008 -7.39953e-010 0
+				    -3.70421e-008 -1 -8.596e-008 0
+				    -7.3995e-010 8.596e-008 -1 0
+				    0.5 0.5 0.5 1 =
+				USE Mask_Axial_2+18
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    DEF RECIST_Switch Switch {
+			Separator {
+			    DEF RECIST+23 SoDrawLine {
+				fields [ SFFloat lineWidth, MFVec3f points ]
+				lineWidth	1.5
+				points	[ 0 0 0,
+						  0 0 0 ]
+			    }
+			    Translation {
+				translation	0.02 -0.02 0 =
+				    DEF +24 Calculator {
+					a	1 =
+					    DEF +25 DecomposeVec3f {
+						vector	1 1 1 =
+						    SelectOne {
+							type	"MFVec3f"
+							index	0
+							input	1 1 1 =
+							    DecomposeMatrix {
+								matrix	1 0 0 0
+									0 1 0 0
+									0 0 1 0
+									0 0 0 1 =
+								    USE +14
+								    . modelMatrix
+
+							    }
+							    . scaleFactor
+
+						    }
+						    . output
+
+					    }
+					    . x
+
+					A	0 0 0 =
+					    SelectOne {
+						type	"MFVec3f"
+						index	0
+						input	[ 0 0 0,
+								  0 0 0 ] =
+						    USE RECIST+23
+						    . points
+
+					    }
+					    . output
+
+					B	0 0 0 =
+					    SelectOne {
+						type	"MFVec3f"
+						index	1
+						input	[ 0 0 0,
+								  0 0 0 ] =
+						    USE RECIST+23
+						    . points
+
+					    }
+					    . output
+
+					C	0.02 -0.02 0
+					expression	"oa=length(A-B) * a; oA = (A+B)/2 + C"
+				    }
+				    . oA
+
+			    }
+			    DEF +26 FontStyle {
+				size	15
+			    }
+			    SoXipText2 {
+				fields [ SFString string,  ]
+				string	"0 mm" =
+				    SoXipStringConcatenate {
+					inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+						MFString input3, MFString input4, MFString input5, MFString input6,
+						MFString input7, MFString input8, MFString input9 ]
+					separator	" "
+					input0	"0" =
+					    DEF RECIST_inMM Concatenate {
+						type	"MFInt32"
+						input0	0 =
+						    USE +24
+						    . oa
+
+					    }
+					    . output
+
+					input1	"mm"
+					input2	[  ]
+					input3	[  ]
+					input4	[  ]
+					input5	[  ]
+					input6	[  ]
+					input7	[  ]
+					input8	[  ]
+					input9	[  ]
+					outputs [ SFString output ]
+				    }
+				    . output
+
+			    }
+			}
+		    }
+		    DEF WHO_Switch Switch {
+			Separator {
+			    DEF WHO+27 SoBiorthogonalLine {
+				fields [ SFFloat lineWidth, MFVec3f points ]
+				lineWidth	1.5
+				points	[ 0 0 0,
+						  0 0 0,
+						  0 0 0,
+						  0 0 0 ]
+			    }
+			    Translation {
+				translation	0.02 -0.02 0 =
+				    DEF +28 Calculator {
+					a	1 =
+					    USE +25
+					    . x
+
+					A	0 0 0 =
+					    SelectOne {
+						type	"MFVec3f"
+						input	[ 0 0 0,
+								  0 0 0,
+								  0 0 0,
+								  0 0 0 ] =
+						    USE WHO+27
+						    . points
+
+					    }
+					    . output
+
+					B	0 0 0 =
+					    SelectOne {
+						type	"MFVec3f"
+						index	1
+						input	[ 0 0 0,
+								  0 0 0,
+								  0 0 0,
+								  0 0 0 ] =
+						    USE WHO+27
+						    . points
+
+					    }
+					    . output
+
+					C	0 0 0 =
+					    SelectOne {
+						type	"MFVec3f"
+						index	2
+						input	[ 0 0 0,
+								  0 0 0,
+								  0 0 0,
+								  0 0 0 ] =
+						    USE WHO+27
+						    . points
+
+					    }
+					    . output
+
+					D	0 0 0 =
+					    SelectOne {
+						type	"MFVec3f"
+						index	3
+						input	[ 0 0 0,
+								  0 0 0,
+								  0 0 0,
+								  0 0 0 ] =
+						    USE WHO+27
+						    . points
+
+					    }
+					    . output
+
+					E	0.02 -0.02 0
+					expression	"oa = (length(A-B)*a)*(length(C-D)*a); oA = A+E"
+				    }
+				    . oA
+
+			    }
+			    USE +26
+			    SoXipText2 {
+				fields [ SFString string,  ]
+				string	"0  mm2" =
+				    SoXipStringConcatenate {
+					inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+						MFString input3, MFString input4, MFString input5, MFString input6,
+						MFString input7, MFString input8, MFString input9 ]
+					separator	"  "
+					input0	"0" =
+					    DEF WHO_inMM Concatenate {
+						type	"MFInt32"
+						input0	0 =
+						    USE +28
+						    . oa
+
+					    }
+					    . output
+
+					input1	"mm2"
+					input2	[  ]
+					input3	[  ]
+					input4	[  ]
+					input5	[  ]
+					input6	[  ]
+					input7	[  ]
+					input8	[  ]
+					input9	[  ]
+					outputs [ SFString output ]
+				    }
+				    . output
+
+			    }
+			}
+		    }
+		}
+		DEF +29 Group {
+		    Separator {
+			Translation {
+			    translation	-0.95 0.95 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"SU " =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"SU"
+				    input1	"" =
+					SoXipGetDicomString {
+					    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+					    dicom	"NULL" =
+						USE +8
+						. output
+
+					    group	0x10
+					    element	0x20
+					    outputs [ MFString string ]
+					}
+					. string
+
+				    input2	[  ]
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+			Translation {
+			    translation	0 -0.05 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"ST " =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"ST"
+				    input1	"" =
+					SoXipGetDicomString {
+					    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+					    dicom	"NULL" =
+						USE +8
+						. output
+
+					    group	0x8
+					    element	0x20
+					    outputs [ MFString string ]
+					}
+					. string
+
+				    input2	[  ]
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+		    }
+		    Separator {
+			Translation {
+			    translation	-0.95 -0.7 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	" mAs" =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"" =
+					DEF Exposure SoXipGetDicomString {
+					    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+					    dicom	"NULL" =
+						USE +8
+						. output
+
+					    group	0x18
+					    element	0x1152
+					    outputs [ MFString string ]
+					}
+					. string
+
+				    input1	"mAs"
+				    input2	[  ]
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+			Translation {
+			    translation	0 -0.05 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	" kVP" =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"" =
+					DEF KVP SoXipGetDicomString {
+					    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+					    dicom	"NULL" =
+						USE +8
+						. output
+
+					    group	0x18
+					    element	0x60
+					    outputs [ MFString string ]
+					}
+					. string
+
+				    input1	"kVP"
+				    input2	[  ]
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+			Translation {
+			    translation	0 -0.05 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"FV  mm" =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"FV"
+				    input1	"" =
+					DEF FOV SoXipGetDicomString {
+					    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+					    dicom	"NULL" =
+						USE +8
+						. output
+
+					    group	0x18
+					    element	0x90
+					    outputs [ MFString string ]
+					}
+					. string
+
+				    input2	"mm"
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+			Translation {
+			    translation	0 -0.05 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"SP  mm" =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"SP"
+				    input1	"" =
+					DEF PixelSpacing SoXipGetDicomString {
+					    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+					    dicom	"NULL" =
+						USE +8
+						. output
+
+					    group	0x28
+					    element	0x30
+					    outputs [ MFString string ]
+					}
+					. string
+
+				    input2	"mm"
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+			Translation {
+			    translation	0 -0.05 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"ST  mm" =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"ST"
+				    input1	"" =
+					DEF SliceThickness SoXipGetDicomString {
+					    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+					    dicom	"NULL" =
+						USE +8
+						. output
+
+					    group	0x18
+					    element	0x50
+					    outputs [ MFString string ]
+					}
+					. string
+
+				    input2	"mm"
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+		    }
+		    Separator {
+			Translation {
+			    translation	0.5 0.95 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"" =
+				SoXipGetDicomString {
+				    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+				    dicom	"NULL" =
+					USE +8
+					. output
+
+				    group	0x8
+				    element	0x70
+				    outputs [ MFString string ]
+				}
+				. string
+
+			}
+			Translation {
+			    translation	0 -0.05 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"" =
+				SoXipGetDicomString {
+				    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+				    dicom	"NULL" =
+					USE +8
+					. output
+
+				    group	0x8
+				    element	0x1090
+				    outputs [ MFString string ]
+				}
+				. string
+
+			}
+			Translation {
+			    translation	0 -0.05 0
+			}
+			SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"" =
+				SoXipGetDicomString {
+				    inputs [ SoXipMFDataDicom dicom, SFUShort group, SFUShort element,  ]
+				    dicom	"NULL" =
+					USE +8
+					. output
+
+				    group	0x8
+				    element	0x60
+				    outputs [ MFString string ]
+				}
+				. string
+
+			}
+		    }
+		    Separator {
+			Translation {
+			    translation	0.5 -0.85 0
+			}
+			DEF Image_Window SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"W 1" =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"W"
+				    input1	"1" =
+					SelectOne {
+					    type	"MFShort"
+					    index	0
+					    input	[ 1, 0 ] =
+						DEF +30 Concatenate {
+						    type	"MFShort"
+						    input0	1 =
+							USE Win_Level+7
+							. oc
+
+						    input1	0 =
+							USE Win_Level+7
+							. od
+
+						}
+						. output
+
+					}
+					. output
+
+				    input2	[  ]
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+			Translation {
+			    translation	0 -0.05 0
+			}
+			DEF Image_Level SoXipText2 {
+			    fields [ SFString string,  ]
+			    string	"L   0" =
+				SoXipStringConcatenate {
+				    inputs [ SFString separator, MFString input0, MFString input1, MFString input2,
+					    MFString input3, MFString input4, MFString input5, MFString input6,
+					    MFString input7, MFString input8, MFString input9 ]
+				    separator	" "
+				    input0	"L  "
+				    input1	"0" =
+					SelectOne {
+					    type	"MFShort"
+					    index	1
+					    input	[ 1, 0 ] =
+						USE +30
+						. output
+
+					}
+					. output
+
+				    input2	[  ]
+				    input3	[  ]
+				    input4	[  ]
+				    input5	[  ]
+				    input6	[  ]
+				    input7	[  ]
+				    input8	[  ]
+				    input9	[  ]
+				    outputs [ SFString output ]
+				}
+				. output
+
+			}
+		    }
+		}
+	    }
+	    Separator {
+		Separator {
+		    Group {
+			USE +0
+			USE Axial_Plane+2
+			USE +1
+		    }
+		    DEF Examiner_Sagittal SoXipMprExaminer {
+			orientation	LEFT
+			mode	PANZOOM
+			border	TRUE
+			dogEar	TRUE
+			orientationCube	TRUE
+			camera				OrthographicCamera {
+			    position	0.5 0.5 0.5
+			    orientation	0.57735 0.57735 0.57735  2.09439
+			    nearDistance	-0.5
+			    farDistance	0.5
+			    focalDistance	0
+			    height	1
+			}
+
+			complexity				Complexity {
+			    value	0.5
+			    textureQuality	0.5
+			}
+
+			intersectionManip				SoXipMprIntersectionManip {
+			    fields [ SFBool isManipulating, SFBool on, SFEnum mode,  ]
+			    isManipulating	FALSE
+			    on	TRUE
+			    mode	TRANSLATION
+			}
+
+			borderNode				SoXipViewportBorder {
+			    fields [ SFColor activeColor, SFColor inactiveColor,  ]
+			    activeColor	0 1 0
+			    inactiveColor	0 1 0
+			}
+
+			dogEarNode				SoXipDogEar {
+			    fields [  ]
+			}
+
+			orientationNode				SoXipOrientationCube {
+			    fields [  ]
+			}
+
+		    }
+		    USE +4
+		    SoXipCPUMprRender {
+			fields [ SoXipSFDataImage volume, SFBool blendOn ]
+			volume	"NULL" =
+			    USE +10
+			    . output
+
+			blendOn	TRUE
+		    }
+		    Group {
+			DEF OverlayStyle_Sagittal_0 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Sagittal_0 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	0.3 0.8 1
+			    transparency	0.1
+			}
+			DEF +31 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFEnum orientation, SFMatrix plane,
+				    MFVec3f concavePoints,  ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				USE Mask_Switch_Import_0+12
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE +14
+				. modelMatrix
+
+			    refWidth	0 =
+				USE +14
+				. width
+
+			    refHeight	0 =
+				USE +14
+				. height
+
+			    refDepth	0 =
+				USE +14
+				. depth
+
+			    orientation	SAGITTAL
+			    plane	1.78814e-007 1 8.9407e-008 0
+				    2.98023e-008 -5.96047e-008 1 0
+				    1 -1.49012e-007 -1.42109e-014 0
+				    0.5 0.5 0.5 1 =
+				USE +1
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Sagittal_1 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Sagittal_1 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	0.8 0.3 1
+			    transparency	0.1
+			}
+			DEF +32 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFEnum orientation, SFMatrix plane,
+				    MFVec3f concavePoints,  ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				USE Mask_Switch_Import_1+16
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE +31
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE +31
+				. refWidth
+
+			    refHeight	0 =
+				USE +31
+				. refHeight
+
+			    refDepth	0 =
+				USE +31
+				. refDepth
+
+			    orientation	SAGITTAL
+			    plane	1.78814e-007 1 8.9407e-008 0
+				    2.98023e-008 -5.96047e-008 1 0
+				    1 -1.49012e-007 -1.42109e-014 0
+				    0.5 0.5 0.5 1 =
+				USE +31
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Sagittal_2 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Sagittal_2 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	1 0.3 0.8
+			    transparency	0.1
+			}
+			DEF +33 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFEnum orientation, SFMatrix plane,
+				    MFVec3f concavePoints,  ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				USE Mask_Switch_Import_2+19
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE +32
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE +32
+				. refWidth
+
+			    refHeight	0 =
+				USE +32
+				. refHeight
+
+			    refDepth	0 =
+				USE +32
+				. refDepth
+
+			    orientation	SAGITTAL
+			    plane	1.78814e-007 1 8.9407e-008 0
+				    2.98023e-008 -5.96047e-008 1 0
+				    1 -1.49012e-007 -1.42109e-014 0
+				    0.5 0.5 0.5 1 =
+				USE +32
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Sagittal_3 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Sagittal_3 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	1 0.8 0.3
+			    transparency	0.1
+			}
+			SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFEnum orientation, SFMatrix plane, MFVec3f concavePoints,
+				     ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				USE Mask_Switch_Import_3+21
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE +33
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE +33
+				. refWidth
+
+			    refHeight	0 =
+				USE +33
+				. refDepth
+
+			    orientation	SAGITTAL
+			    plane	1.78814e-007 1 8.9407e-008 0
+				    2.98023e-008 -5.96047e-008 1 0
+				    1 -1.49012e-007 -1.42109e-014 0
+				    0.5 0.5 0.5 1 =
+				USE +33
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		}
+		USE +29
+	    }
+	    Separator {
+		Separator {
+		    Group {
+			USE Axial_Plane+2
+			USE +1
+			USE +0
+		    }
+		    DEF Examiner_Coronal SoXipMprExaminer {
+			orientation	ANTERIOR
+			mode	PANZOOM
+			border	TRUE
+			dogEar	TRUE
+			orientationCube	TRUE
+			camera				OrthographicCamera {
+			    position	0.5 0.5 0.5
+			    orientation	1 -4.76607e-008 -1.6369e-009  1.5708
+			    nearDistance	-0.5
+			    farDistance	0.5
+			    focalDistance	0
+			    height	1
+			}
+
+			complexity				Complexity {
+			    value	0.5
+			    textureQuality	0.5
+			}
+
+			intersectionManip				SoXipMprIntersectionManip {
+			    fields [ SFBool isManipulating, SFBool on, SFEnum mode,  ]
+			    isManipulating	FALSE
+			    on	TRUE
+			    mode	TRANSLATION
+			}
+
+			borderNode				SoXipViewportBorder {
+			    fields [ SFColor activeColor, SFColor inactiveColor,  ]
+			    activeColor	0 0 1
+			    inactiveColor	0 0 1
+			}
+
+			dogEarNode				SoXipDogEar {
+			    fields [  ]
+			}
+
+			orientationNode				SoXipOrientationCube {
+			    fields [  ]
+			}
+
+		    }
+		    USE +4
+		    SoXipCPUMprRender {
+			fields [ SoXipSFDataImage volume, SFBool blendOn ]
+			volume	"NULL" =
+			    USE +10
+			    . output
+
+			blendOn	TRUE
+		    }
+		    Group {
+			DEF OverlayStyle_Coronal_0 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Coronal_0 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	0.3 0.8 1
+			    transparency	0.1
+			}
+			DEF +34 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFEnum orientation, SFMatrix plane,
+				    MFVec3f concavePoints,  ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				USE Mask_Switch_Import_0+12
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE +14
+				. modelMatrix
+
+			    refWidth	0 =
+				USE +14
+				. width
+
+			    refHeight	0 =
+				USE +14
+				. height
+
+			    refDepth	0 =
+				USE +14
+				. depth
+
+			    orientation	CORONAL
+			    plane	1 -6.50187e-008 2.92721e-008 0
+				    -2.9272e-008 1.04575e-006 1 0
+				    -6.50187e-008 -1 1.04575e-006 0
+				    0.5 0.5 0.5 1 =
+				USE +0
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Coronal_1 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Coronal_1 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	0.8 0.3 1
+			    transparency	0.1
+			}
+			DEF +35 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFEnum orientation, SFMatrix plane,
+				    MFVec3f concavePoints,  ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				USE Mask_Switch_Import_1+16
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE +34
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE +34
+				. refWidth
+
+			    refHeight	0 =
+				USE +34
+				. refHeight
+
+			    refDepth	0 =
+				USE +34
+				. refDepth
+
+			    orientation	CORONAL
+			    plane	1 -6.50187e-008 2.92721e-008 0
+				    -2.9272e-008 1.04575e-006 1 0
+				    -6.50187e-008 -1 1.04575e-006 0
+				    0.5 0.5 0.5 1 =
+				USE +34
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Coronal_2 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Coronal_2 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	1 0.3 0.8
+			    transparency	0.1
+			}
+			DEF +36 SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFEnum orientation, SFMatrix plane,
+				    MFVec3f concavePoints,  ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				USE Mask_Switch_Import_2+19
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE +35
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE +35
+				. refWidth
+
+			    refHeight	0 =
+				USE +35
+				. refHeight
+
+			    refDepth	0 =
+				USE +35
+				. refDepth
+
+			    orientation	CORONAL
+			    plane	1 -6.50187e-008 2.92721e-008 0
+				    -2.9272e-008 1.04575e-006 1 0
+				    -6.50187e-008 -1 1.04575e-006 0
+				    0.5 0.5 0.5 1 =
+				USE +35
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		    Group {
+			DEF OverlayStyle_Coronal_3 SoXipOverlayDrawStyle {
+			    fields [ MFString label, SFFloat lineWidth,  ]
+			    label	"roi"
+			    lineWidth	1
+			}
+			DEF OverlayClr_Coronal_3 SoXipOverlayColor {
+			    fields [ MFString label, SFColor color, SFFloat transparency ]
+			    label	"roi"
+			    color	1 0.8 0.3
+			    transparency	0.1
+			}
+			SoMaskContour {
+			    fields [ MFString shapeLabel, SoXipSFDataImage volMask, SFMatrix refModelMatrix, SFInt32 refWidth,
+				    SFInt32 refHeight, SFInt32 refDepth, SFEnum orientation, SFMatrix plane,
+				    MFVec3f concavePoints,  ]
+			    shapeLabel	"roi"
+			    volMask	"NULL" =
+				USE Mask_Switch_Import_3+21
+				. image
+
+			    refModelMatrix	1 0 0 0
+				    0 1 0 0
+				    0 0 1 0
+				    0 0 0 1 =
+				USE +36
+				. refModelMatrix
+
+			    refWidth	0 =
+				USE +36
+				. refWidth
+
+			    refHeight	0 =
+				USE +36
+				. refHeight
+
+			    refDepth	0 =
+				USE +36
+				. refDepth
+
+			    orientation	CORONAL
+			    plane	1 -6.50187e-008 2.92721e-008 0
+				    -2.9272e-008 1.04575e-006 1 0
+				    -6.50187e-008 -1 1.04575e-006 0
+				    0.5 0.5 0.5 1 =
+				USE +36
+				. plane
+
+			    concavePoints	[  ]
+			}
+		    }
+		}
+		USE +29
+	    }
+	}
+	Separator {
+	    Separator {
+		DEF dump SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			DEF dump_vol SoVolumeMetrics {
+			    inputs [ SoXipSFDataImage inputVolume,  ]
+			    inputVolume	"NULL" =
+				DEF QIBA_Mask_1+37 SoContourVoxelizer {
+				    inputs [ MFVec3f point, MFInt32 coordIndex, SFEnum maskType, SFShort width,
+					    SFShort height, SFShort depth, SFMatrix modelMatrix,  ]
+				    point	[  ] =
+					DEF QIBA_Contour_1+38 SoNormalizeContour {
+					    inputs [ MFVec2f point, MFInt32 coordIndex,  ]
+					    point	0 0 =
+						DEF Contour_1+39 SoLoadContour {
+						    inputs [  ]
+						    outputs [ MFVec2f points, MFInt32 coordIndex ]
+						}
+						. points
+
+					    coordIndex	0 =
+						USE Contour_1+39
+						. coordIndex
+
+					    outputs [ SFMatrix modelMatrix, SFInt32 maskWidth, SFInt32 maskHeight, SFInt32 maskDepth,
+						    MFVec3f pointList, MFInt32 pointIndex ]
+					}
+					. pointList
+
+				    coordIndex	[  ] =
+					USE QIBA_Contour_1+38
+					. pointIndex
+
+				    maskType	BYTE_MASK
+				    width	0 =
+					USE QIBA_Contour_1+38
+					. maskWidth
+
+				    height	0 =
+					USE QIBA_Contour_1+38
+					. maskHeight
+
+				    depth	0 =
+					USE QIBA_Contour_1+38
+					. maskDepth
+
+				    modelMatrix	1 0 0 0
+					    0 1 0 0
+					    0 0 1 0
+					    0 0 0 1 =
+					USE QIBA_Contour_1+38
+					. modelMatrix
+
+				    outputs [ SoXipSFDataImage mask ]
+				}
+				. mask
+
+			    outputs [ SFFloat RECIST, SFFloat WHO, SFFloat Volume ]
+			}
+			. Volume
+
+		}
+		DEF avgDistance SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			DEF mvt_surface_cal+40 SoMVTSurfaceCalculator {
+			    inputs [ SoItkSFDataImage inputVolume, SoItkSFDataImage refVolume,  ]
+			    inputVolume	"NULL" =
+				DEF input_vol+41 SoXipImageToItkImage {
+				    inputs [ SoXipSFDataImage input,  ]
+				    input	"NULL" =
+					DEF Mask_Align+42 SoAlignVolumeMask {
+					    inputs [ SoXipSFDataImage inputMask, SoXipSFDataImage refMask,  ]
+					    inputMask	"NULL" =
+						DEF Mask_Switch_0 SoXipSwitchMFDataImage {
+						    inputs [ SoXipMFDataImage image1, SoXipMFDataImage image2,  ]
+						    image1	"NULL" =
+							DEF QIBA_Mask_0 SoContourVoxelizer {
+							    inputs [ MFVec3f point, MFInt32 coordIndex, SFEnum maskType, SFShort width,
+								    SFShort height, SFShort depth, SFMatrix modelMatrix,  ]
+							    point	[  ] =
+								DEF QIBA_Contour_0+43 SoNormalizeContour {
+								    inputs [ MFVec2f point, MFInt32 coordIndex,  ]
+								    point	0 0 =
+									DEF Contour_0+44 SoLoadContour {
+									    inputs [  ]
+									    outputs [ MFVec2f points, MFInt32 coordIndex ]
+									}
+									. points
+
+								    coordIndex	0 =
+									USE Contour_0+44
+									. coordIndex
+
+								    outputs [ SFMatrix modelMatrix, SFInt32 maskWidth, SFInt32 maskHeight, SFInt32 maskDepth,
+									    MFVec3f pointList, MFInt32 pointIndex ]
+								}
+								. pointList
+
+							    coordIndex	[  ] =
+								USE QIBA_Contour_0+43
+								. pointIndex
+
+							    maskType	BYTE_MASK
+							    width	0 =
+								USE QIBA_Contour_0+43
+								. maskWidth
+
+							    height	0 =
+								USE QIBA_Contour_0+43
+								. maskHeight
+
+							    depth	0 =
+								USE QIBA_Contour_0+43
+								. maskDepth
+
+							    modelMatrix	1 0 0 0
+								    0 1 0 0
+								    0 0 1 0
+								    0 0 0 1 =
+								USE QIBA_Contour_0+43
+								. modelMatrix
+
+							    outputs [ SoXipSFDataImage mask ]
+							}
+							. mask
+
+						    image2	"NULL" =
+							DEF DICOM_Seg_0 SoIALoadDcmSegObject {
+							    inputs [  ]
+							    outputs [ SoXipSFDataImage inputVolume ]
+							}
+							. inputVolume
+
+						    outputs [ SoXipMFDataImage image ]
+						}
+						. image
+
+					    refMask	"NULL" =
+						DEF Mask_Switch_1 SoXipSwitchMFDataImage {
+						    inputs [ SoXipMFDataImage image1, SoXipMFDataImage image2,  ]
+						    image1	"NULL" =
+							USE QIBA_Mask_1+37
+							. mask
+
+						    image2	"NULL" =
+							DEF DICOM_Seg_1 SoIALoadDcmSegObject {
+							    inputs [  ]
+							    outputs [ SoXipSFDataImage inputVolume ]
+							}
+							. inputVolume
+
+						    outputs [ SoXipMFDataImage image ]
+						}
+						. image
+
+					    outputs [ SoXipSFDataImage inputVolume, SoXipSFDataImage refVolume ]
+					}
+					. inputVolume
+
+				    outputs [ SoItkSFDataImage output ]
+				}
+				. output
+
+			    refVolume	"NULL" =
+				DEF ref_vol+45 SoXipImageToItkImage {
+				    inputs [ SoXipSFDataImage input,  ]
+				    input	"NULL" =
+					USE Mask_Align+42
+					. refVolume
+
+				    outputs [ SoItkSFDataImage output ]
+				}
+				. output
+
+			    outputs [ SFFloat avgDistance, SFFloat avgSqrDistance, SFFloat maxDistance ]
+			}
+			. avgDistance
+
+		}
+		DEF avgSqrDistance SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			USE mvt_surface_cal+40
+			. avgSqrDistance
+
+		}
+		DEF maxDistance SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			USE mvt_surface_cal+40
+			. maxDistance
+
+		}
+	    }
+	    Separator {
+		DEF vol_Seg SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			DEF mvt_volume_cal+46 SoMVTVolumeCalculator {
+			    inputs [ SoItkSFDataImage inputVolume, SoItkSFDataImage refVolume,  ]
+			    inputVolume	 =
+				USE input_vol+41
+				. output
+
+			    refVolume	 =
+				USE ref_vol+45
+				. output
+
+			    outputs [ SFFloat volumeSeg, SFFloat volumeRef, SFFloat volumeDif, SFFloat volumeDifPerc,
+				    SFFloat volumeDifPercAbs, SFFloat tanimotoError ]
+			}
+			. volumeSeg
+
+		}
+		DEF vol_Ref SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			USE mvt_volume_cal+46
+			. volumeRef
+
+		}
+		DEF vol_Diff SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			USE mvt_volume_cal+46
+			. volumeDif
+
+		}
+		DEF vol_DiffPerc SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			USE mvt_volume_cal+46
+			. volumeDifPerc
+
+		}
+		DEF vol_DifPercAbs SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			USE mvt_volume_cal+46
+			. volumeDifPercAbs
+
+		}
+		DEF tanimoto_Error SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			USE mvt_volume_cal+46
+			. tanimotoError
+
+		}
+	    }
+	}
+	Separator {
+	    Separator {
+		DEF Mean SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			DEF Statistics+47 SoMVTBasicStatistic {
+			    inputs [  ]
+			    outputs [ SFFloat mean, SFFloat std, MFFloat quantile ]
+			}
+			. mean
+
+		}
+		DEF SD SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"0" =
+			USE Statistics+47
+			. std
+
+		}
+		DEF Quantile SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"[  ]" =
+			USE Statistics+47
+			. quantile
+
+		}
+		DEF Output SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"[  ]" =
+			DEF Script SoMVTStatisticScript {
+			    inputs [  ]
+			    outputs [ MFFloat output, SFInt32 ret ]
+			}
+			. output
+
+		}
+		DEF Scatter_plotting SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"FALSE" =
+			DEF Scatter SoMVTBasicPlot {
+			    inputs [ SFString x_Label, MFFloat x_Axial, SFString y_Label, MFFloat y_Axial,
+				    SFString title, SFEnum format,  ]
+			    x_Label	"Segmentation Volume"
+			    x_Axial	[ 0, 0, 0 ]
+			    y_Label	"Reference Volume"
+			    y_Axial	[ 0, 0, 0 ]
+			    title	"Scatter plot of Volume"
+			    format	PNG
+			    outputs [ SFBool ret ]
+			}
+			. ret
+
+		}
+		Group {
+		    DEF Anova_Sum SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    DEF Anova+48 SoMVTAnova {
+				inputs [  ]
+				outputs [ MFFloat df, MFFloat sum, MFFloat mean, MFFloat f_value,
+					MFFloat p_value ]
+			    }
+			    . sum
+
+		    }
+		    DEF Anova_Df SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    USE Anova+48
+			    . df
+
+		    }
+		    DEF Anova_Mean SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    USE Anova+48
+			    . mean
+
+		    }
+		    DEF Anova_Fvalue SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    USE Anova+48
+			    . f_value
+
+		    }
+		    DEF Anova_Pvalue SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    USE Anova+48
+			    . p_value
+
+		    }
+		}
+		Group {
+		    DEF MRegression_Residual SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    DEF MultipleRegression+49 SoMVTMultipleRegression {
+				inputs [  ]
+				outputs [ MFFloat residual, MFFloat estimate, MFFloat std, MFFloat f_value,
+					MFFloat p_value ]
+			    }
+			    . residual
+
+		    }
+		    DEF MRegression_Estimate SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    USE MultipleRegression+49
+			    . estimate
+
+		    }
+		    DEF MRegression_Std SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    USE MultipleRegression+49
+			    . std
+
+		    }
+		    DEF MRegression_Fvalue SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    USE MultipleRegression+49
+			    . f_value
+
+		    }
+		    DEF MRegression_Pvalue SoXipText2 {
+			fields [ SFString string,  ]
+			string	"0" =
+			    USE MultipleRegression+49
+			    . p_value
+
+		    }
+		}
+		DEF Histogram_Plotting SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"FALSE" =
+			DEF Histogram SoMVTHistogram {
+			    inputs [  ]
+			    outputs [ SFBool ret ]
+			}
+			. ret
+
+		}
+		DEF Bland_Altmann_Plotting SoXipText2 {
+		    fields [ SFString string,  ]
+		    string	"FALSE" =
+			DEF Bland_Altmann SoMVTBasicPlot {
+			    inputs [ SFString x_Label, MFFloat x_Axial, SFString y_Label, MFFloat y_Axial,
+				    SFEnum format, SFEnum type,  ]
+			    x_Label	"Average of Volume"
+			    x_Axial	[ 0, 0, 0 ]
+			    y_Label	"Difference of Volume"
+			    y_Axial	[ 0, 0, 0 ]
+			    format	PNG
+			    type	Bland_Altmann
+			    outputs [ SFBool ret ]
+			}
+			. ret
+
+		}
+	    }
+	}
+    }
+}

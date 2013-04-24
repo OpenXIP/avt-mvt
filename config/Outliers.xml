@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<AVT Format='MVT Comparison Information'>
+<version>v0.2</version>
+<comment>For Internal Use Only!</comment>
+<Comparison>
+<Comparison_ID>user1</Comparison_ID>
+<Comparison_Date>20090303</Comparison_Date>
+<Comparison_Time>112326</Comparison_Time>
+<Comparison_UID>Outlier1</Comparison_UID>
+<Experiment_UID>Experiment1</Experiment_UID>
+</Comparison>
+<Items>
+<Item>
+<Measurement>Volume Difference</Measurement>
+<Scaling>Top 25%</Scaling>
+</Item>
+<Item>
+<Measurement>Volume Overlap</Measurement>
+<Scaling>Top 50%</Scaling>
+</Item>
+</Items>
+</AVT>
