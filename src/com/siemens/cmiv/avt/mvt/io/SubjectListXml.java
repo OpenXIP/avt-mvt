@@ -1,17 +1,5 @@
 package com.siemens.cmiv.avt.mvt.io;
 
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Calculation;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.DICOMImageReference;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageReference;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Segmentation;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Series;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Study;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Annotation.CalculationCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Annotation.User;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation.Patient;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation.SegmentationCollection;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;

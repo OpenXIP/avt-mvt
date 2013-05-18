@@ -270,5 +270,11 @@ public class MeasurementVariability extends WG23Application implements WG23Liste
 			}
 		
 		return true; 
+	}
+
+	@Override
+	public State getState() {
+		// TODO Auto-generated method stub
+		return null;
 	} 
 }

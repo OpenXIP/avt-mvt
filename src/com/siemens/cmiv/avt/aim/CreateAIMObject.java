@@ -1,34 +1,7 @@
 package com.siemens.cmiv.avt.aim;
 
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.AnatomicEntity;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Annotation;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Calculation;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.CalculationResult;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.CalculationResultIdentifier;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Coordinate;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.DICOMImageReference;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Data;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Equipment;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.GeometricShape;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Image;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageReference;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImagingObservation;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImagingObservationCharacteristic;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ObjectFactory;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Segmentation;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.SegmentationIdentifier;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.SpatialCoordinate;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.TwoDimensionSpatialCoordinate;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Annotation.AnatomicEntityCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Annotation.CalculationCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Annotation.ImagingObservationCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.Calculation.CalculationResultCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.GeometricShape.SpatialCoordinateCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation.GeometricShapeCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation.ImageReferenceCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImageAnnotation.SegmentationCollection;
-import gme.cacore_cacore._3_2.edu_northwestern_radiology.ImagingObservation.ImagingObservationCharacteristicCollection;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotation;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ObjectFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
