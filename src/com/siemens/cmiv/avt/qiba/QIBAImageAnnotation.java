@@ -1,5 +1,11 @@
 package com.siemens.cmiv.avt.qiba;
 
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.DicomImageReferenceEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.Image;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotation;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageSeries;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageSeries.ImageCollection;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageStudy;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ObjectFactory;
 
 import java.io.File;
@@ -34,6 +40,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
+
+import uri.iso_org._21090.II;
 
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.Attribute;
@@ -425,40 +433,42 @@ public class QIBAImageAnnotation {
 		}
 		return false;
 	}
-	private DICOMImageReference getDicomImageRef(){
+	
+	private DicomImageReferenceEntity getDicomImageRef(){
 		//create imageReference collection
-		DICOMImageReference imageRef = factory.createDICOMImageReference();
-		imageRef.setId(BigInteger.ZERO);
+		DicomImageReferenceEntity imageRef = factory.createDicomImageReferenceEntity();
+		II identifier = new II();
+		identifier.setIdentifierName(BigInteger.ZERO.toString());
+		imageRef.setUniqueIdentifier(identifier);
 		
 		//study
-		DICOMImageReference.Study study = factory.createDICOMImageReferenceStudy();
 		
-		gme.cacore_cacore._3_2.edu_northwestern_radiology.Study normalStudy = factory.createStudy();
-		normalStudy.setId(BigInteger.ZERO);
-
-		//study 
-		normalStudy.setInstanceUID(dicomImage.getStudyUID());
+		ImageStudy study = imageRef.getImageStudy();
+		
+		ImageStudy normalStudy = factory.createImageStudy();
+		II instanceUid = new II();
+		instanceUid.setIdentifierName(dicomImage.getStudyUID());
+		normalStudy.setInstanceUid(instanceUid);
 		
 		//series
-		gme.cacore_cacore._3_2.edu_northwestern_radiology.Series seriesItem = factory.createSeries();
-		
-		//series Number
-		seriesItem.setId(BigInteger.ZERO);
-		
-		//series instance UID (as the FrameofReferenceUID)
-		seriesItem.setInstanceUID(dicomImage.getSeriesUID());
+		ImageSeries seriesItem = factory.createImageSeries();
+		II seriesInstanceUid = new II();
+		seriesInstanceUid.setIdentifierName(dicomImage.getSeriesUID());
 		
 		// Sop instance UID and Sop Class UID
-		gme.cacore_cacore._3_2.edu_northwestern_radiology.Series.ImageCollection imageColl = factory.createSeriesImageCollection();
+		ImageCollection imageColl = factory.createImageSeriesImageCollection();
 		List<Image> imageList = imageColl.getImage();
 		ArrayList<DicomSlice> dicomSliceList = dicomImage.getDicomSlices();
 		int sliceNum = dicomSliceList.size();
 		for(int i = 0; i < sliceNum; ++i){
 			DicomSlice slice = dicomSliceList.get(i);
 			Image image = factory.createImage();
-			image.setId(BigInteger.valueOf(i));
-			image.setSopClassUID(slice.getSopClassUID());
-			image.setSopInstanceUID(slice.getSopInstanceUID());
+			II sopClassUid = new II();
+			sopClassUid.setIdentifierName(slice.getSopClassUID());
+			image.setSopClassUid(sopClassUid);
+			II sopInstanceUid = new II();
+			sopInstanceUid.setIdentifierName(slice.getSopInstanceUID());
+			image.setSopInstanceUid(sopInstanceUid);
 			imageList.add(image);
 		}
 		
@@ -470,9 +480,11 @@ public class QIBAImageAnnotation {
 		normalStudy.setSeries(series);
 		study.setStudy(normalStudy);
 		
-		imageRef.setStudy(study);
+		imageRef.setImageStudy(study);
 		return imageRef;
 	}
+	
+	
 	private gme.cacore_cacore._3_2.edu_northwestern_radiology.Patient getPatient(){
 		//Create patient
 		gme.cacore_cacore._3_2.edu_northwestern_radiology.Patient pat = factory.createPatient();
@@ -489,6 +501,7 @@ public class QIBAImageAnnotation {
 		pat.setSex(dicomImage.getPatientSex());
 		return pat;
 	}
+	
 	private gme.cacore_cacore._3_2.edu_northwestern_radiology.User getUser(){
 		//Create user
 		gme.cacore_cacore._3_2.edu_northwestern_radiology.User user = factory.createUser();
@@ -566,6 +579,7 @@ public class QIBAImageAnnotation {
 		
 		return calResult;
 	}
+	
 	private CalculationResult getCrossProductCalResult(){
 		CalculationResult calResult = factory.createCalculationResult();
 		calResult.setNumberOfDimensions(BigInteger.valueOf(2));
@@ -657,6 +671,7 @@ public class QIBAImageAnnotation {
 		
 		return calResult;
 	}
+	
 	private Calculation getRulerCalculation(){
 		Calculation cal = factory.createCalculation();
 		cal.setCodeMeaning("Long_Axis");
@@ -674,6 +689,7 @@ public class QIBAImageAnnotation {
 		return cal;
 		
 	}
+	
 	private Calculation getCrossProductCalculation(){
 		Calculation cal = factory.createCalculation();
 		cal.setCodeMeaning("CrossProduct");
@@ -690,6 +706,7 @@ public class QIBAImageAnnotation {
 		cal.setCalculationResultCollection(resultColl);
 		return cal;
 	}
+	
 	private gme.cacore_cacore._3_2.edu_northwestern_radiology.MultiPoint getMultiPointGeometricShape(){
 		//create MultiPoint
 		gme.cacore_cacore._3_2.edu_northwestern_radiology.MultiPoint geoShape = factory.createMultiPoint();
@@ -734,6 +751,7 @@ public class QIBAImageAnnotation {
 		}
 		return geoShape;
 	}
+	
 	private GeometricShapeCollection getPolylineShapeCollection(){
 		
 		GeometricShapeCollection geoShapeColl = factory.createImageAnnotationGeometricShapeCollection();
@@ -798,6 +816,7 @@ public class QIBAImageAnnotation {
 		
 		return geoShapeColl;
 	}
+	
 	private XMLGregorianCalendar getCurrentTime(){
      	DatatypeFactory factory = null;
      	try{

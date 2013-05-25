@@ -2,9 +2,14 @@
 
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.DicomImageReferenceEntity;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotation;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotationCollection;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageReferenceEntity;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageSeries;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageStudy;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.MarkupEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.Person;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.TwoDimensionGeometricShapeEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.TwoDimensionGeometricShapeEntity.TwoDimensionSpatialCoordinateCollection;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.TwoDimensionSpatialCoordinate;
 
 import javax.swing.BorderFactory;
@@ -20,8 +25,6 @@ import org.dcm4che2.data.DicomObject;
 import org.dcm4che2.data.Tag;
 import org.dcm4che2.io.DicomOutputStream;
 
-import uri.iso_org._21090.II;
-
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.AttributeTag;
@@ -30,14 +33,12 @@ import com.pixelmed.dicom.DicomInputStream;
 import com.siemens.cmiv.avt.mvt.ad.ADFactory;
 import com.siemens.cmiv.avt.mvt.ad.ADRetrieve;
 import com.siemens.cmiv.avt.mvt.ad.ADRetrieveEvent;
-import com.siemens.cmiv.avt.mvt.ad.ADRetrieveResult;
 import com.siemens.cmiv.avt.mvt.ad.ADSearchEvent;
 import com.siemens.cmiv.avt.mvt.core.MVTCalculateEvent;
 import com.siemens.cmiv.avt.mvt.core.MVTListener;
 import com.siemens.cmiv.avt.mvt.core.ProcessMonitoring;
 import com.siemens.cmiv.avt.mvt.datatype.ComputationListEntry;
 import com.siemens.cmiv.avt.mvt.datatype.MeasurementEntry;
-import com.siemens.cmiv.avt.mvt.datatype.RetrieveResult;
 import com.siemens.cmiv.avt.mvt.datatype.SubjectListEntry;
 import com.siemens.cmiv.avt.mvt.statistic.StatisticEvent;
 import com.siemens.cmiv.avt.mvt.statistic.StatisticResult;
@@ -85,7 +86,6 @@ public class MVTStatisticResultPanel extends JPanel implements ActionListener, S
 	private	String	studyType = "SOV";
 	private String	nominalGT = "";
 	
-	private String tempFolder = "c:\\temp";
 	private String datasetCache = "";
 	
 	private ProcessMonitoring rServProcess = new ProcessMonitoring();
@@ -254,10 +254,10 @@ public class MVTStatisticResultPanel extends JPanel implements ActionListener, S
 
 		String refRECISTAim = item.getAim("RefRECISTAim");
 		if (refRECISTAim.length() > 0){
-			Map<String, II> aimResult = getSeedInformation(refRECISTAim);
+			Map<String, String> aimResult = getSeedInformation(refRECISTAim);
 			if (aimResult.size() > 0){
-				II imageUID = aimResult.get("ImageReferenceUID");
-				II points = aimResult.get("SeedPoints");
+				String imageUID = aimResult.get("ImageReferenceUID");
+				String points = aimResult.get("SeedPoints");
 				
 				getIvCanvas().set("Import_Points.points", points.toString());
 				getIvCanvas().set("Import_Points.sopInstanceUID", imageUID.toString());
@@ -452,34 +452,38 @@ public class MVTStatisticResultPanel extends JPanel implements ActionListener, S
 		return true;
 	}
 
-	public Map<String, II> getSeedInformation(String aim){
+	public Map<String, String> getSeedInformation(String aim){
 		
-		Map<String, II> aimResult = new HashMap<String, II>();
+		Map<String, String> aimResult = new HashMap<String, String>();
 
 		File aimFile = new File(aim);
     	if (!aimFile.exists())
     		return aimResult;
     	
         try{
-		   JAXBContext jaxbContext = JAXBContext.newInstance("gme.cacore_cacore._3_2.edu_northwestern_radiology");
+		   JAXBContext jaxbContext = JAXBContext.newInstance("gme.cacore_cacore._4_4.edu_northwestern_radiology");
 		   Unmarshaller u = jaxbContext.createUnmarshaller();
-		   JAXBElement obj = (JAXBElement)u.unmarshal(aimFile);			
-		   ImageAnnotation imageAnnotation = ((ImageAnnotation)obj.getValue());
+		   JAXBElement<?> obj = (JAXBElement<?>)u.unmarshal(aimFile);			
+		   ImageAnnotationCollection imageAnnotationCollection = ((ImageAnnotationCollection)obj.getValue());
+		   ImageAnnotation imageAnnotation = imageAnnotationCollection.getImageAnnotations().getImageAnnotation().get(0);
 		   
 		   //get annotation UID
-		   aimResult.put("AnnotationUID", imageAnnotation.getUniqueIdentifier());
+		   aimResult.put("AnnotationUID", imageAnnotation.getUniqueIdentifier().toString());
 		   
 		   //get series instance UID
 		   ImageReferenceEntity imageReference = imageAnnotation.getImageReferenceEntityCollection().getImageReferenceEntity().get(0);
 		   DicomImageReferenceEntity ref = (DicomImageReferenceEntity) imageReference;
 		   ImageStudy study = ref.getImageStudy();	 
 		   ImageSeries series = study.getImageSeries();
-		   aimResult.put("SeriesInstanceUID", series.getInstanceUid());
+		   aimResult.put("SeriesInstanceUID", series.getInstanceUid().toString());
 		   
 		   //get the seed point
-		   List<GeometricShapeEntity> geometricShapes = imageAnnotation.getGeometricShapeCollection().getGeometricShape();
-		   SpatialCoordinateCollection pointCollection = geometricShapes.get(0).getSpatialCoordinateCollection();
-		   List<SpatialCoordinate> pointCoords = pointCollection.getSpatialCoordinate();
+		   List<MarkupEntity> markupEntityCollection = imageAnnotation.getMarkupEntityCollection().getMarkupEntity();
+		   MarkupEntity markupEntity = markupEntityCollection.get(0);
+		   TwoDimensionGeometricShapeEntity geopetricShapeEntity = (TwoDimensionGeometricShapeEntity)markupEntity;
+		   geopetricShapeEntity.getTwoDimensionSpatialCoordinateCollection();
+		   TwoDimensionSpatialCoordinateCollection pointCollection = geopetricShapeEntity.getTwoDimensionSpatialCoordinateCollection();
+		   List<TwoDimensionSpatialCoordinate> pointCoords = pointCollection.getTwoDimensionSpatialCoordinate();
 		   
 		   if (pointCoords.size() < 2)
 			   return aimResult;
@@ -489,21 +493,20 @@ public class MVTStatisticResultPanel extends JPanel implements ActionListener, S
 		   TwoDimensionSpatialCoordinate point = (TwoDimensionSpatialCoordinate) pointCoords.get(0);
 		   point0[0] = point.getX().getValue();
 		   point0[1] = point.getY().getValue();
-		   aimResult.put("ImageReferenceUID", point.getImageReferenceUID());
+		   aimResult.put("ImageReferenceUID", geopetricShapeEntity.getImageReferenceUid().toString());
 		   
-		   int []point1 = new int[2];
+		   double []point1 = new double[2];
 		   point = (TwoDimensionSpatialCoordinate) pointCoords.get(1);
-		   point1[0] = (int)point.getX();
-		   point1[1] = (int)point.getY();
+		   point1[0] = point.getX().getValue();
+		   point1[1] = point.getY().getValue();
 		   
 		   aimResult.put("SeedPoints", String.format("[%d, %d, %d, %d]", point0[0], point0[1], point1[0], point1[1]));
 		   
 		   //get patient information
-		   ImageAnnotation.Patient pat = imageAnnotation.getPatient();
-		   Patient _pat = pat.getPatient();
-		   aimResult.put("PatientName", _pat.getName());
-		   aimResult.put("PatientID", _pat.getPatientID());
-		   aimResult.put("PatientGender", _pat.getSex());
+		   Person _pat = imageAnnotationCollection.getPerson();
+		   aimResult.put("PatientName", _pat.getName().getValue());
+		   aimResult.put("PatientID", _pat.getId().getValue());
+		   aimResult.put("PatientGender", _pat.getSex().getValue());
 		   
         } catch (JAXBException e){
             e.printStackTrace();
@@ -600,7 +603,6 @@ public class MVTStatisticResultPanel extends JPanel implements ActionListener, S
 	public void actionPerformed(ActionEvent e) {
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void statisticResultsAvailable(StatisticEvent e) {
 		StatisticResult result = (StatisticResult) e.getSource();	

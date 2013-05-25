@@ -1,5 +1,19 @@
 package com.siemens.cmiv.avt.mvt.io;
 
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.AnnotationEntity.CalculationEntityCollection;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.CalculationEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.DicomImageReferenceEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.DicomSegmentationEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotation;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotation.SegmentationEntityCollection;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotationCollection;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageReferenceEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageSeries;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageStudy;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.Person;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.SegmentationEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.User;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -334,24 +348,25 @@ public class SubjectListXml {
 					continue;
 				}
 				
-			   JAXBElement obj = (JAXBElement)u.unmarshal(resultXmlFile);			   
+			   JAXBElement<?> obj = (JAXBElement<?>)u.unmarshal(resultXmlFile);			   
 				
 			   //get annotation UID
-			   ImageAnnotation imageAnnotation = ((ImageAnnotation)obj.getValue());
-			   String annotationType = imageAnnotation.getCodeValue();
+			   ImageAnnotationCollection imageAnnotationCollection = ((ImageAnnotationCollection)obj.getValue());
+			   ImageAnnotation imageAnnotation = imageAnnotationCollection.getImageAnnotations().getImageAnnotation().get(0);
+			   String annotationType = imageAnnotation.getTypeCode().get(0).getCode();
 			   
 			   //skip the seed aim
 			   if (annotationType.compareToIgnoreCase("AVT001") == 0)
 				   continue;
 			   
 			   //get series instance UID
-			   ImageReference imageReference = imageAnnotation.getImageReferenceCollection().getImageReference().get(0);
-			   DICOMImageReference ref = (DICOMImageReference) imageReference;
-			   Study study = ref.getStudy().getStudy();	 
-			   String StudyInstanceUID = study.getInstanceUID();
+			   ImageReferenceEntity imageReference = imageAnnotation.getImageReferenceEntityCollection().getImageReferenceEntity().get(0);
+			   DicomImageReferenceEntity ref = (DicomImageReferenceEntity) imageReference;
+			   ImageStudy study = ref.getImageStudy();	 
+			   String StudyInstanceUID = study.getInstanceUid().toString();
 			   
-			   Series series = study.getSeries().getSeries();
-			   String SeriesInstanceUID = series.getInstanceUID();
+			   ImageSeries series = study.getImageSeries();
+			   String SeriesInstanceUID = series.getInstanceUid().toString();
 				
 				boolean existsubject = false;
 				Subject subject = null;
@@ -372,11 +387,11 @@ public class SubjectListXml {
 				if(false == existsubject){
 					subject = new Subject();
 					
-					gme.cacore_cacore._3_2.edu_northwestern_radiology.Patient pat = imageAnnotation.getPatient().getPatient();
+					Person pat = imageAnnotationCollection.getPerson();
 					
-					String Subject_Name = pat.getName();
-					String Subject_ID = pat.getPatientID();
-					String Subject_Gender = pat.getSex();
+					String Subject_Name = pat.getName().getValue();
+					String Subject_ID = pat.getId().getValue();
+					String Subject_Gender = pat.getSex().getValue();
 					
 					subject.setSubject_Name(Subject_Name);
 					subject.setSubject_ID(Subject_ID);
@@ -388,37 +403,38 @@ public class SubjectListXml {
 				
 				Annotation annotation = new Annotation();
 				
-			    String AnnotationUID = imageAnnotation.getUniqueIdentifier();
+			    String AnnotationUID = imageAnnotation.getUniqueIdentifier().toString();
 			    
-			    gme.cacore_cacore._3_2.edu_northwestern_radiology.User user = imageAnnotation.getUser().getUser();
-				String username = user.getName();
+			    User user = imageAnnotationCollection.getUser();
+				String username = user.getName().getValue();
 				
 				String filenameString = resultXmlFile.getName();
 				
 				String AnnotationTypeStr = "";
-			   CalculationCollection cal = imageAnnotation.getCalculationCollection();
-			   if (cal == null){
+				CalculationEntityCollection calEntityCollection = imageAnnotation.getCalculationEntityCollection();
+				CalculationEntity calEntity = calEntityCollection.getCalculationEntity().get(0);
+				if (calEntity == null){
 				   AnnotationTypeStr = "VOLUME";
 					
-				   SegmentationCollection seg = imageAnnotation.getSegmentationCollection();
-				   if (seg != null){ //load Dicom segmentation object
-					   List<Segmentation> segs = seg.getSegmentation();
-					   String uid = segs.get(0).getReferencedSopInstanceUID();
+				   SegmentationEntityCollection segentityCollection = imageAnnotation.getSegmentationEntityCollection();
+				   if (segentityCollection != null){ //load Dicom segmentation object
+					   List<SegmentationEntity> segs = segentityCollection.getSegmentationEntity();
+					   DicomSegmentationEntity dicomSegEntity = (DicomSegmentationEntity) segs.get(0);
+					   String uid = dicomSegEntity.getReferencedSopInstanceUid().toString();
 					
 					   String segFile = getDicomSegFile(resultXmlsFiles, uid);
 					   if (!segFile.isEmpty())
 						   annotation.setReference_Seg(segFile);
 				   }
-			   }
-			   else {
-				   List<Calculation> cals = cal.getCalculation();
-				   String str = cals.get(0).getCodeMeaning();
+				}
+				else {
+				   String str = calEntity.getTypeCode().get(0).getCode();
 				   if (str.compareToIgnoreCase("Long_Axis") == 0 || str.indexOf("Long Axis") != -1)
 						AnnotationTypeStr = "RECIST";
 				   
 				   if (str.compareToIgnoreCase("CrossProduct") == 0 || str.indexOf("Cross Product") != -1)
 						AnnotationTypeStr = "WHO";
-			   }
+				}
 				
 				annotation.setAnnotation_UID(AnnotationUID);
 				annotation.setAnnotation_Type(AnnotationTypeStr);
