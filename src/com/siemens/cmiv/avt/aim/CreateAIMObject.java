@@ -1,7 +1,18 @@
 package com.siemens.cmiv.avt.aim;
 
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.AimVersion;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.DicomImageReferenceEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.Equipment;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.Image;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotation;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotation.ImageReferenceEntityCollection;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageAnnotationCollection;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageReferenceEntity;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageSeries;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageSeries.ImageCollection;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageStudy;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ObjectFactory;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.User;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,6 +31,10 @@ import javax.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+
+import uri.iso_org._21090.II;
+import uri.iso_org._21090.ST;
+import uri.iso_org._21090.TS;
 
 import com.pixelmed.dicom.Attribute;
 import com.pixelmed.dicom.AttributeList;
@@ -52,7 +67,6 @@ public class CreateAIMObject {
 	private String patient_Gender = "";
 	
 	public CreateAIMObject(){
-		aim_Version = "TCGA";
 		aim_SchemeDesignator = "AVT2";
 		aim_SchemaVersion = "v0_rv1";
 		aim_CodeValue = "AVT2";
@@ -115,15 +129,30 @@ public class CreateAIMObject {
 		patient_Gender = pat_Gender;
 	}
 	
-	public void marshallVolume(File aimFile, String seedPoint, String seedUID,
-			File segDcm) {
+	public void marshallVolume(File aimFile, String seedPoint, String seedUID, File segDcm) {
 		try {
 			//create ImageAnnotation
+			ImageAnnotationCollection imageAnnotationCollection = factory.createImageAnnotationCollection();
+			II uniqueIdentifier = new II();
+			uniqueIdentifier.setIdentifierName(BigInteger.ZERO.toString()).
+			//imageAnnotationCollection.setUniqueIdentifier(uniqueIdentifier);
+			
+	
+			
+			TS dateTime = new TS();
+			dateTime.setValue(getCurrentTime().toString());
+			imageAnnotationCollection.setDateTime(dateTime);
+			
 			ImageAnnotation annot = factory.createImageAnnotation();
-			annot.setId(BigInteger.ZERO);
-			annot.setAimVersion(aim_Version);
-			annot.setDateTime(getCurrentTime());
-			annot.setName(annotation_Reader);
+			II value = new II();
+			value.setIdentifierName(BigInteger.ZERO.toString()).
+			
+			
+			ST stValue = new ST();
+			stValue.setValue(annotation_Reader);
+			annot.setName(stValue);
+			
+			
 			annot.setCodingSchemeDesignator(aim_SchemeDesignator);
 			annot.setCodingSchemeVersion(aim_SchemaVersion);
 			annot.setCodeValue(aim_CodeValue);
@@ -133,25 +162,38 @@ public class CreateAIMObject {
 			annot.setUniqueIdentifier(uid.getNewUID());
 	
 			//create user
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.User user = factory.createUser();
-			user.setName(annotation_Reader);
+			gme.cacore_cacore._4_4.edu_northwestern_radiology.User user = factory.createUser();
+			ST name = new ST();
+			name.setValue(annotation_Reader);
+			user.setName(name);
+			
 			user.setId(new BigInteger("0"));
-			user.setLoginName("wustl");
+			
+			
+			ST loginName = new ST();
+			loginName.setValue("wustl");
+			user.setLoginName(loginName);
 			switch (annotation_Role) {
 			case 0://nominal ground truth
-				user.setRoleInTrial("Norminal GroundTruth");
+				ST roleInTrial1 = new ST();
+				roleInTrial1.setValue("Norminal GroundTruth");
+				user.setRoleInTrial(roleInTrial1);
 				break;
 				
 			case 1://algorithm
-				user.setRoleInTrial("Algorithm");
+				ST roleInTrial2 = new ST();
+				roleInTrial2.setValue("Algorithm");
+				user.setRoleInTrial(roleInTrial2);
 				break;
 			}
+			
 			Annotation.User user2 = factory.createAnnotationUser();
 			user2.setUser(user);
 			annot.setUser(user2);					
 			
 			//create Equipment
-			annot.setEquipment(assembleEquipment(algo_manufacturer, algo_model, algo_version));
+			Equipment equipment = assembleEquipment(algo_manufacturer, algo_model, algo_version);
+			imageAnnotationCollection.setEquipment(equipment);
 			
 			//create AnatomicEntity
 			annot.setAnatomicEntityCollection(assmbleAnatomicEntity());
@@ -211,9 +253,13 @@ public class CreateAIMObject {
 			String recistUID) {
 		try {
 			//create ImageAnnotation
+			ImageAnnotationCollection imageAnnotationCollection = factory.createImageAnnotationCollection();
+			
 			ImageAnnotation annot = factory.createImageAnnotation();
-			annot.setId(BigInteger.ZERO);
-			annot.setAimVersion(aim_Version);
+			II uniqueIdentifier = new II();
+			uniqueIdentifier.setIdentifierName(BigInteger.ZERO.toString());
+			
+			annot.setI.setAimVersion(aim_Version);
 			annot.setDateTime(getCurrentTime());
 			annot.setName(annotation_Reader);
 			annot.setCodingSchemeDesignator(aim_SchemeDesignator);
@@ -225,25 +271,30 @@ public class CreateAIMObject {
 			annot.setUniqueIdentifier(uid.getNewUID());
 	
 			//create user
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.User user = factory.createUser();
-			user.setName(annotation_Reader);
-			user.setId(new BigInteger("0"));
-			user.setLoginName("wustl");
+			User user = factory.createUser();
+			ST name = new ST();
+			name.setValue(annotation_Reader);
+			user.setName(name);
+			ST loginName = new ST();
+			loginName.setValue("wustl");
+			user.setLoginName(loginName);
+			ST roleInTrial = new ST();
 			switch (annotation_Role) {
 			case 0://nominal ground truth
-				user.setRoleInTrial("Norminal GroundTruth");
+				roleInTrial.setValue("Norminal GroundTruth");
+				user.setRoleInTrial(roleInTrial);
 				break;
 				
 			case 1://algorithm
-				user.setRoleInTrial("Algorithm");
+				roleInTrial.setValue("Algorithm");
+				user.setRoleInTrial(roleInTrial);
 				break;
 			}
-			Annotation.User user2 = factory.createAnnotationUser();
-			user2.setUser(user);
-			annot.setUser(user2);					
-			
+					
+			imageAnnotationCollection.setUser(user);
+			imageAnnotationCollection.setAimVersion(aim_Version);
 			//create Equipment
-			annot.setEquipment(assembleEquipment(algo_manufacturer, algo_model, algo_version));
+			imageAnnotationCollection.setEquipment(assembleEquipment(algo_manufacturer, algo_model, algo_version));
 			
 			//create AnatomicEntity
 			annot.setAnatomicEntityCollection(assmbleAnatomicEntity());
@@ -258,7 +309,7 @@ public class CreateAIMObject {
 			annot.setImageReferenceCollection(assembleImageReferenceCollection(segDcm, recistUID));
 
 			//Create patient
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.Patient pat = factory.createPatient();
+			gme.cacore_cacore._4_4.edu_northwestern_radiology.Patient pat = factory.createPatient();
 			
 			pat.setId(BigInteger.ZERO);
 			
@@ -297,6 +348,7 @@ public class CreateAIMObject {
 	public void marshallWHO(File aimFile, File segDcm, String who, String whoPoint, String whoUID) {
 		try {
 			//create ImageAnnotation
+			ImageAnnotationCollection imageAnnotationCollection = factory.createImageAnnotationCollection();
 			ImageAnnotation annot = factory.createImageAnnotation();
 			annot.setId(BigInteger.ZERO);
 			annot.setAimVersion(aim_Version);
@@ -311,7 +363,7 @@ public class CreateAIMObject {
 			annot.setUniqueIdentifier(uid.getNewUID());
 	
 			//create user
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.User user = factory.createUser();
+			gme.cacore_cacore._4_4.edu_northwestern_radiology.User user = factory.createUser();
 			user.setName(annotation_Reader);
 			user.setId(new BigInteger("0"));
 			user.setLoginName("wustl");
@@ -329,7 +381,7 @@ public class CreateAIMObject {
 			annot.setUser(user2);					
 			
 			//create Equipment
-			annot.setEquipment(assembleEquipment(algo_manufacturer, algo_model, algo_version));
+			imageAnnotationCollection.setEquipment(assembleEquipment(algo_manufacturer, algo_model, algo_version));
 			
 			//create AnatomicEntity
 			annot.setAnatomicEntityCollection(assmbleAnatomicEntity());
@@ -344,7 +396,7 @@ public class CreateAIMObject {
 			annot.setImageReferenceCollection(assembleImageReferenceCollection(segDcm, whoUID));
 
 			//Create patient
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.Patient pat = factory.createPatient();
+			gme.cacore_cacore._4_4.edu_northwestern_radiology.Patient pat = factory.createPatient();
 			
 			pat.setId(BigInteger.ZERO);
 			
@@ -424,8 +476,8 @@ public class CreateAIMObject {
 		calResult.setType(CalculationResultIdentifier.SCALAR);
 		
 		// set dimensionCollection node
-		gme.cacore_cacore._3_2.edu_northwestern_radiology.Dimension dimension1 = factory.createDimension();
-		gme.cacore_cacore._3_2.edu_northwestern_radiology.Dimension dimension2 = factory.createDimension();
+		gme.cacore_cacore._4_4.edu_northwestern_radiology.Dimension dimension1 = factory.createDimension();
+		gme.cacore_cacore._4_4.edu_northwestern_radiology.Dimension dimension2 = factory.createDimension();
 		if (unit.compareToIgnoreCase("mm") == 0){		
 			dimension1.setId(BigInteger.ZERO);
 			dimension1.setIndex(BigInteger.ZERO);
@@ -440,7 +492,7 @@ public class CreateAIMObject {
 		}
 			
 		CalculationResult.DimensionCollection dimCollection = factory.createCalculationResultDimensionCollection();
-		List<gme.cacore_cacore._3_2.edu_northwestern_radiology.Dimension> dimList = dimCollection.getDimension();
+		List<gme.cacore_cacore._4_4.edu_northwestern_radiology.Dimension> dimList = dimCollection.getDimension();
 		dimList.add(dimension1);
 		
 		if (unit.compareToIgnoreCase("mm2") == 0){
@@ -727,30 +779,33 @@ public class CreateAIMObject {
 		   return segCollection;
 	   }
 	   
-	   public Annotation.Equipment assembleEquipment(String manufacturer, String model, String version){
-		   Annotation.Equipment equipInfor = factory.createAnnotationEquipment();
-		   
+	   public Equipment assembleEquipment(String manufacturer, String model, String version){
 		   Equipment equip = factory.createEquipment();
-		   equip.setId(BigInteger.ZERO);
-		   equip.setManufacturer(manufacturer);
-		   equip.setManufacturerModelName(model);
-		   equip.setSoftwareVersion(version);	   
-		   
-		   equipInfor.setEquipment(equip);
-		   return equipInfor;
+		   ST deviceSerialNumber = new ST();
+		   deviceSerialNumber.setValue(BigInteger.ZERO.toString());
+		   equip.setDeviceSerialNumber(deviceSerialNumber);
+		   ST manufacturerName = new ST();
+		   manufacturerName.setValue(manufacturer);
+		   equip.setManufacturerName(manufacturerName);
+		   ST manufacturerModelName = new ST();
+		   manufacturerModelName.setValue(model);
+		   equip.setManufacturerModelName(manufacturerModelName);
+		   ST softwareVersion = new ST();
+		   softwareVersion.setValue(version);		   
+		   equip.setSoftwareVersion(softwareVersion);
+		   return equip;
 	   }
 	   
-	   public ImageReferenceCollection assembleImageReferenceCollection(File segDcm){
-			DICOMImageReference imageRef = factory.createDICOMImageReference();
-			imageRef.setId(BigInteger.ZERO);
+	   public ImageReferenceEntityCollection assembleImageReferenceCollection(File segDcm){
+			DicomImageReferenceEntity imageRef = factory.createDicomImageReferenceEntity();
+			II uniqueIdentifier = new II();
+			uniqueIdentifier.setIdentifierName(BigInteger.ZERO.toString());
+			imageRef.setUniqueIdentifier(uniqueIdentifier);
 			
 			//study
-			DICOMImageReference.Study study = factory.createDICOMImageReferenceStudy();
+			//DICOMImageReference.Study study = factory.createDICOMImageReferenceStudy();
 			
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.Study normalStudy = factory.createStudy();
-			normalStudy.setId(BigInteger.ZERO);
-
-			//study 
+			ImageStudy normalStudy = factory.createImageStudy();
 
 			//parse the DICOM segment object
 			DicomInputStream segInput;
@@ -770,24 +825,30 @@ public class CreateAIMObject {
 			AttributeTag tag = new AttributeTag(0x20, 0x0d);
 			Attribute attrib = tags.get(tag);
 			if (attrib != null)
-				normalStudy.setInstanceUID(attrib.getSingleStringValueOrEmptyString());
+			{
+				II studyInstanceUid = new II();
+				studyInstanceUid.setIdentifierName(attrib.getSingleStringValueOrEmptyString());
+				normalStudy.setInstanceUid(studyInstanceUid);
+			}
 			
 			//series
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.Series seriesItem = factory.createSeries();
+			ImageSeries seriesItem = factory.createImageSeries();
 			
 			//series Number
 			tag = new AttributeTag(0x20, 0x11);
 			attrib = tags.get(tag);
-			if (attrib != null)
-				seriesItem.setId(new BigInteger(attrib.getSingleStringValueOrEmptyString()));
 			
 			//series instance UID (as the FrameofReferenceUID)
 			tag = new AttributeTag(0x20, 0x52);
 			attrib = tags.get(tag);
 			if (attrib != null)
-				seriesItem.setInstanceUID(attrib.getSingleStringValueOrEmptyString());
+			{
+				II seriesInstanceUid = new II();
+				seriesInstanceUid.setIdentifierName(attrib.getSingleStringValueOrEmptyString());
+				seriesItem.setInstanceUid(seriesInstanceUid);
+			}
 			
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.Series.ImageCollection imageColl = factory.createSeriesImageCollection();
+			ImageCollection imageColl = factory.createImageSeriesImageCollection();
 
 			List<Image> imageList = imageColl.getImage();
 			
@@ -810,16 +871,18 @@ public class CreateAIMObject {
 							SequenceItem item = sq.getItem(k);
 							
 							Image image = factory.createImage();
-							image.setId(new BigInteger(Integer.toString(k)));
-							
 							AttributeList itemList = item.getAttributeList();
 							tag = new AttributeTag(0x08, 0x16);
 							attrib = itemList.get(tag);
-							image.setSopClassUID(attrib.getSingleStringValueOrEmptyString());
+							II sopClassUid = new II();
+							sopClassUid.setIdentifierName(attrib.getSingleStringValueOrEmptyString());
+							image.setSopClassUid(sopClassUid);
 							
 							tag = new AttributeTag(0x08, 0x18);
 							attrib = itemList.get(tag);
-							image.setSopInstanceUID(attrib.getSingleStringValueOrEmptyString());
+							II sopInstanceUid = new II();
+							sopInstanceUid.setIdentifierName(attrib.getSingleStringValueOrEmptyString());
+							image.setSopInstanceUid(sopInstanceUid);
 							
 							imageList.add(image);
 						}
@@ -828,18 +891,13 @@ public class CreateAIMObject {
 			}
 			
 			seriesItem.setImageCollection(imageColl);
+			normalStudy.setImageSeries(seriesItem);
 			
-			gme.cacore_cacore._3_2.edu_northwestern_radiology.Study.Series series = factory.createStudySeries();
-			series.setSeries(seriesItem);
+			imageRef.setImageStudy(normalStudy);
 			
-			normalStudy.setSeries(series);
-			study.setStudy(normalStudy);
-			
-			imageRef.setStudy(study);
-			
-			ImageReferenceCollection imagingReferenceColl = factory.createImageAnnotationImageReferenceCollection();
-			List<ImageReference> imageReferenceList = imagingReferenceColl.getImageReference();
-			imageReferenceList.add(imageRef);
+			ImageReferenceEntityCollection imagingReferenceColl = factory.createImageAnnotationImageReferenceEntityCollection();
+			List<ImageReferenceEntity> imageReferenceEntity = imagingReferenceColl.getImageReferenceEntity();
+			imageReferenceEntity.add(imageRef);
 			
 			return imagingReferenceColl;
 	   }

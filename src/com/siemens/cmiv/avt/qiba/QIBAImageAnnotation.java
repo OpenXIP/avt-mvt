@@ -7,6 +7,8 @@ import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageSeries;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageSeries.ImageCollection;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ImageStudy;
 import gme.cacore_cacore._4_4.edu_northwestern_radiology.ObjectFactory;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.Person;
+import gme.cacore_cacore._4_4.edu_northwestern_radiology.User;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,6 +44,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import uri.iso_org._21090.II;
+import uri.iso_org._21090.INT;
+import uri.iso_org._21090.ST;
 
 import com.pixelmed.dicom.AttributeList;
 import com.pixelmed.dicom.Attribute;
@@ -474,10 +478,10 @@ public class QIBAImageAnnotation {
 		
 		seriesItem.setImageCollection(imageColl);
 		
-		gme.cacore_cacore._3_2.edu_northwestern_radiology.Study.Series series = factory.createStudySeries();
+		ImageSeries series = factory.createImageSeries();
 		series.setSeries(seriesItem);
 		
-		normalStudy.setSeries(series);
+		normalStudy.setImageSeries(series);
 		study.setStudy(normalStudy);
 		
 		imageRef.setImageStudy(study);
@@ -485,40 +489,47 @@ public class QIBAImageAnnotation {
 	}
 	
 	
-	private gme.cacore_cacore._3_2.edu_northwestern_radiology.Patient getPatient(){
+	private Person getPatient(){
 		//Create patient
-		gme.cacore_cacore._3_2.edu_northwestern_radiology.Patient pat = factory.createPatient();
-		
-		pat.setId(BigInteger.ZERO);
+		Person pat = factory.createPerson();
+		ST id = new ST();
+		id.setValue(BigInteger.ZERO.toString());
+		pat.setId(id);
 		
 		//PatientName
-		pat.setName(dicomImage.getPatientName());
-		
-		//PatientID
-		pat.setPatientID(dicomImage.getPatientID());
+		ST name = new ST();
+		name.setValue(dicomImage.getPatientName());
+		pat.setName(name);
 
 		//PatientSex
-		pat.setSex(dicomImage.getPatientSex());
+		ST sex = new ST();
+		sex.setValue(dicomImage.getPatientSex());
+		pat.setSex(sex);
 		return pat;
 	}
 	
-	private gme.cacore_cacore._3_2.edu_northwestern_radiology.User getUser(){
+	private User getUser(){
 		//Create user
-		gme.cacore_cacore._3_2.edu_northwestern_radiology.User user = factory.createUser();
-		
-		user.setId(BigInteger.ZERO);
+		User user = factory.createUser();
 		
 		// user name
-		user.setName(UserName);
+		ST userName = new ST();
+		userName.setValue(UserName);
+		user.setName(userName);
 		
 		// loginName
-		user.setLoginName("NWU");
+		ST loginName = new ST();
+		loginName.setValue("NWU");
+		user.setLoginName(loginName);
 		
 		// numberWithinRoleOfClinicalTrial
-		user.setNumberWithinRoleOfClinicalTrial(BigInteger.valueOf(3));
-		
+		INT numberWithinRoleOfClinicalTrial = new INT();
+		numberWithinRoleOfClinicalTrial.setValue(3);
+		user.setNumberWithinRoleOfClinicalTrial(numberWithinRoleOfClinicalTrial);
 		// roleInTrial
-		user.setRoleInTrial("Referring");
+		ST roleInTrial = new ST();
+		roleInTrial.setValue("Referring");
+		user.setRoleInTrial(roleInTrial);
 		
 		return user;
 	}
